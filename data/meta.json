@@ -2,7 +2,7 @@
   "source": "Tribunal Superior Eleitoral (TSE)",
   "election": "Eleições 2026",
   "uf": "MA",
-  "updatedAt": "2026-10-04T01:49:15.813Z",
+  "updatedAt": "2026-10-04T01:53:48.607903+00:00",
   "candidateRecords": 619,
   "files": [
     {
@@ -16,6 +16,5 @@
       "records": 619
     }
   ],
-  "privacy": "Publicação apenas de campos eleitorais públicos necessários ao painel; identificadores pessoais e contatos foram excluídos."
+  "privacy": "Campos públicos necessários ao painel; identificadores pessoais e contatos excluídos."
 }
-
