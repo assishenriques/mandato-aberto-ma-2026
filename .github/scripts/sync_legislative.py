@@ -54,8 +54,8 @@ def name_match(candidate, member_names):
     aliases.discard("")
     member_names = [str(n) for n in member_names if n]
     exact = [name for name in member_names if normalize(name) in aliases]
-    unique = {normalize(x): x for x in exact}
-    return next(iter(unique.values())) if len(unique) == 1 else None
+    # Multiple exact aliases in the same roster row still identify one person.
+    return exact[0] if exact else None
 
 
 def camara_members(term):
