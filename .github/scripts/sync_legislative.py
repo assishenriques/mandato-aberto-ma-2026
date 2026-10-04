@@ -22,9 +22,17 @@ def get_json(url):
             request = urllib.request.Request(url, headers=HEADERS)
             with urllib.request.urlopen(request, timeout=45) as response:
                 return json.loads(response.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            error = exc
+            # A malformed query or missing record will not improve by retrying.
+            if exc.code != 429 and exc.code < 500:
+                raise
+            retry_after = exc.headers.get("Retry-After", "")
+            time.sleep(int(retry_after) if retry_after.isdigit() else 2 + attempt)
         except Exception as exc:
             error = exc
-            time.sleep(1 + attempt)
+            if attempt < 2:
+                time.sleep(1 + attempt)
     raise error
 
 
@@ -112,7 +120,7 @@ def camara_propositions(deputy_id):
     records = []
     page = 1
     while True:
-        query = urllib.parse.urlencode({"idDeputadoAutor": deputy_id, "itens": 100, "pagina": page, "ordem": "DESC", "ordenarPor": "dataApresentacao"})
+        query = urllib.parse.urlencode({"idDeputadoAutor": deputy_id, "itens": 100, "pagina": page, "ordem": "DESC", "ordenarPor": "id"})
         payload = get_json(f"{CAMARA}/proposicoes?{query}")
         records.extend(payload.get("dados", []))
         if not any(link.get("rel") == "next" for link in payload.get("links", [])):
@@ -211,7 +219,7 @@ def main():
                         "source": "Dados Abertos da Câmara dos Deputados"
                     })
             except Exception as exc:
-                warnings.append(f"Câmara, parlamentar {deputy_id}: {type(exc).__name__}")
+                warnings.append(f"Câmara, parlamentar {deputy_id}: {type(exc).__name__} {getattr(exc, 'code', '')}".strip())
         for senator_id, member in member_groups.get("senado", {}).items():
             try:
                 payload = get_json(f"{SENADO}/senador/{senator_id}/autorias.json")
@@ -270,6 +278,8 @@ def main():
     with open("data/producao-legislativa.json", "w", encoding="utf-8") as stream:
         json.dump(payload, stream, ensure_ascii=False, separators=(",", ":"))
     print(f"Candidaturas: {len(candidates)}; com proposições federais: {payload['matchedCandidateCount']}; registros: {len(output)}; alertas: {len(warnings)}")
+    for institution in sorted({row["institution"] for row in output}):
+        print(f"{institution}: {sum(1 for row in output if row['institution'] == institution)} registros")
     for warning in warnings:
         print("AVISO", warning)
 
