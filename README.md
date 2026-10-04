@@ -1,7 +1,15 @@
 # Mandato Aberto — Maranhão 2026
 
-Static public app. The data is embedded in `index.html`; no server or build step is required.
+Aplicação pública para consulta às candidaturas do Maranhão nas eleições de 2026.
 
-## Publish
+## Publicação
 
-GitHub Pages can serve this folder directly from the repository root.
+O projeto é uma aplicação estática compatível com GitHub Pages.
+
+## Fontes
+
+- TSE — Candidatos 2026: https://dadosabertos.tse.jus.br/pt_BR/dataset/candidatos-2026
+- Câmara dos Deputados — Dados Abertos: https://dadosabertos.camara.leg.br/swagger/api.html
+- Senado Federal — Dados Abertos: https://www12.senado.leg.br/dados-abertos/conjuntos
+
+A classificação de pautas e posicionamentos deve permanecer vinculada a evidências documentais e fontes verificáveis.
