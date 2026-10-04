@@ -9,7 +9,7 @@ https://assishenriques.github.io/mandato-aberto-ma-2026/
 ## Arquivos de dados
 
 - `data/initial-candidates.json`: base pronta que o app usa para exibir e filtrar as candidaturas.
-- `data/evidencias.json`: trilhas documentais curadas por candidato e tema; aceita pautas declaradas, produção legislativa e posicionamentos públicos com fonte, data e URL. A cobertura atual é parcial e cada registro tem link para sua fonte.
+- `data/producao-legislativa.json`: proposições registradas em nome dos candidatos nas bases da Câmara dos Deputados e do Senado, incluindo totais/status por candidatura, data da coleta e links para os registros oficiais. A coleta abrange as legislaturas federais 52ª–57ª e roda junto da sincronização diária. A vinculação é por nome e pode haver homônimos; os links oficiais devem ser usados para conferir cada matéria.\n- `data/evidencias.json`: trilhas documentais curadas por candidato e tema; aceita pautas declaradas, produção legislativa e posicionamentos públicos com fonte, data e URL. A cobertura atual é parcial e cada registro tem link para sua fonte.
 - `data/consulta_cand_2026_MA.csv`: recorte do arquivo de candidaturas do TSE para o Maranhão.
 - `data/consulta_cand_complementar_2026_MA.csv`: dados complementares correspondentes às candidaturas do Maranhão.
 - `data/meta.json`: fontes, horário da atualização e contagens dos arquivos.
@@ -29,3 +29,7 @@ Os dados de candidatura vêm dos arquivos do TSE. A matriz de pautas contém reg
 ## Atualização
 
 O workflow `.github/workflows/sync-data.yml` baixa os dois ZIPs oficiais, filtra o Maranhão, mantém somente as colunas necessárias, atualiza os CSVs, JSONs e os dados incorporados ao HTML, e então o GitHub Pages publica a nova versão.
+
+## Limites da cobertura legislativa
+
+A coleta de produção legislativa cobre Câmara dos Deputados e Senado Federal. Ainda não integra ALEMA nem câmaras municipais; portanto, ausência de registro no arquivo federal não significa ausência de produção legislativa. A lista de matérias reúne proposições de autoria/coautoria encontradas nas fontes, não representa por si só posicionamento temático, voto ou relatoria.
