@@ -1,0 +1,97 @@
+name: Sincronizar dados eleitorais
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "15 3 * * *"
+  push:
+    paths:
+      - ".github/workflows/sync-data.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download TSE 2026
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 3 -o /tmp/consulta_cand_2026.zip             https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_2026.zip
+          rm -rf /tmp/tse
+          mkdir -p /tmp/tse
+          unzip -q /tmp/consulta_cand_2026.zip -d /tmp/tse
+
+      - name: Build Maranhão dataset
+        run: |
+          python - <<'PY'
+          import csv, json, os, glob, datetime
+
+          files = glob.glob("/tmp/tse/**/*.csv", recursive=True)
+          candidate_files = [p for p in files if "consulta_cand_2026" in os.path.basename(p).lower()]
+
+          rows = []
+          wanted = {
+              "SENADOR": "Senador",
+              "DEPUTADO FEDERAL": "Deputado Federal",
+              "DEPUTADO ESTADUAL": "Deputado Estadual",
+          }
+
+          for path in candidate_files:
+              with open(path, "r", encoding="latin-1", newline="") as f:
+                  reader = csv.DictReader(f, delimiter=";")
+                  for raw in reader:
+                      if (raw.get("SG_UF") or "").strip() != "MA":
+                          continue
+                      cargo_raw = (raw.get("DS_CARGO") or "").strip().upper()
+                      if cargo_raw not in wanted:
+                          continue
+                      rows.append({
+                          "id": (raw.get("SQ_CANDIDATO") or "").strip(),
+                          "nome": (raw.get("NM_URNA_CANDIDATO") or raw.get("NM_CANDIDATO") or "").strip(),
+                          "nomeCivil": (raw.get("NM_CANDIDATO") or "").strip(),
+                          "cargo": wanted[cargo_raw],
+                          "partido": (raw.get("SG_PARTIDO") or "").strip(),
+                          "numero": (raw.get("NR_CANDIDATO") or "").strip(),
+                          "uf": "MA",
+                          "situacao": (raw.get("DS_SITUACAO_CANDIDATURA") or "").strip(),
+                          "fonte": "https://dadosabertos.tse.jus.br/pt_BR/dataset/candidatos-2026"
+                      })
+
+          dedup = {}
+          for r in rows:
+              dedup[r["id"] or f'{r["cargo"]}-{r["numero"]}-{r["nome"]}'] = r
+          rows = list(dedup.values())
+          rows.sort(key=lambda r: (r["cargo"], r["partido"], r["numero"], r["nome"]))
+
+          os.makedirs("data", exist_ok=True)
+          with open("data/candidatos.json", "w", encoding="utf-8") as f:
+              json.dump(rows, f, ensure_ascii=False, separators=(",", ":"))
+
+          meta = {
+              "updatedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              "source": "TSE - Candidatos 2026",
+              "uf": "MA",
+              "records": len(rows)
+          }
+          with open("data/meta.json", "w", encoding="utf-8") as f:
+              json.dump(meta, f, ensure_ascii=False, indent=2)
+
+          print(f"Registros MA: {len(rows)}")
+          PY
+
+      - name: Commit dataset
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/candidatos.json data/meta.json
+          if git diff --cached --quiet; then
+            echo "Sem alterações nos dados."
+            exit 0
+          fi
+          git commit -m "Atualiza dados eleitorais do Maranhão"
+          git push
