@@ -1,6 +1,21 @@
 {
-  "updatedAt": "2026-10-04T00:55:53.535124+00:00",
-  "source": "TSE - Candidatos 2026",
+  "source": "Tribunal Superior Eleitoral (TSE)",
+  "election": "Eleições 2026",
   "uf": "MA",
-  "records": 578
+  "updatedAt": "2026-10-04T01:49:15.813Z",
+  "candidateRecords": 619,
+  "files": [
+    {
+      "name": "consulta_cand_2026_MA.csv",
+      "source": "https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_2026.zip",
+      "records": 619
+    },
+    {
+      "name": "consulta_cand_complementar_2026_MA.csv",
+      "source": "https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand_complementar/consulta_cand_complementar_2026.zip",
+      "records": 619
+    }
+  ],
+  "privacy": "Publicação apenas de campos eleitorais públicos necessários ao painel; identificadores pessoais e contatos foram excluídos."
 }
+
