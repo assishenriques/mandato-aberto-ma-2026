@@ -9,6 +9,7 @@ https://assishenriques.github.io/mandato-aberto-ma-2026/
 ## Arquivos de dados
 
 - `data/initial-candidates.json`: base pronta que o app usa para exibir e filtrar as candidaturas.
+- `data/evidencias.json`: trilhas documentais curadas por candidato e tema; aceita pautas declaradas, produção legislativa e posicionamentos públicos com fonte, data e URL. Começa vazia para evitar inferências sem prova.
 - `data/consulta_cand_2026_MA.csv`: recorte do arquivo de candidaturas do TSE para o Maranhão.
 - `data/consulta_cand_complementar_2026_MA.csv`: dados complementares correspondentes às candidaturas do Maranhão.
 - `data/meta.json`: fontes, horário da atualização e contagens dos arquivos.
