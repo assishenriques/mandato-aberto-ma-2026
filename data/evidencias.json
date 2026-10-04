@@ -1,6 +1,96 @@
 {
   "schemaVersion": 1,
-  "description": "Registros curados com fonte verificável. A base começa vazia para não inferir pautas sem evidência.",
-  "evidences": []
+  "description": "Registros curados com fonte verificável. Cobertura parcial; ausência de evidência não significa ausência de pauta.",
+  "evidences": [
+    {
+      "candidateId": "100002543869",
+      "theme": "Segurança",
+      "type": "declarada",
+      "statement": "O plano oficial da campanha apresenta Segurança Pública e Defesa Civil entre suas áreas de propostas, com foco declarado em proteção, tecnologia e presença do Estado.",
+      "source": "Site oficial da campanha de Orleans Brandão",
+      "date": "2026-10-04",
+      "url": "https://www.orleansbrandao.com.br/plano-de-governo"
+    },
+    {
+      "candidateId": "100002543869",
+      "theme": "Infraestrutura",
+      "type": "declarada",
+      "statement": "O plano oficial da campanha inclui Infraestrutura e Logística e Mobilidade Urbana entre suas áreas de propostas.",
+      "source": "Site oficial da campanha de Orleans Brandão",
+      "date": "2026-10-04",
+      "url": "https://www.orleansbrandao.com.br/plano-de-governo"
+    },
+    {
+      "candidateId": "100002543869",
+      "theme": "Habitação",
+      "type": "declarada",
+      "statement": "O plano oficial da campanha inclui Cidades, com propostas que mencionam moradia, saneamento e planejamento urbano.",
+      "source": "Site oficial da campanha de Orleans Brandão",
+      "date": "2026-10-04",
+      "url": "https://www.orleansbrandao.com.br/plano-de-governo"
+    },
+    {
+      "candidateId": "100002543869",
+      "theme": "Saúde",
+      "type": "declarada",
+      "statement": "Saúde é uma área explícita do plano de governo da campanha; a página descreve a proposta como ampliar o alcance do atendimento no estado.",
+      "source": "Site oficial da campanha de Orleans Brandão",
+      "date": "2026-10-04",
+      "url": "https://www.orleansbrandao.com.br/plano-de-governo"
+    },
+    {
+      "candidateId": "100002543869",
+      "theme": "Educação",
+      "type": "declarada",
+      "statement": "Educação aparece como área explícita do plano de governo da campanha.",
+      "source": "Site oficial da campanha de Orleans Brandão",
+      "date": "2026-10-04",
+      "url": "https://www.orleansbrandao.com.br/plano-de-governo"
+    },
+    {
+      "candidateId": "100002543869",
+      "theme": "Emprego",
+      "type": "declarada",
+      "statement": "Produção, Trabalho e Renda é uma área explícita do plano de governo da campanha.",
+      "source": "Site oficial da campanha de Orleans Brandão",
+      "date": "2026-10-04",
+      "url": "https://www.orleansbrandao.com.br/plano-de-governo"
+    },
+    {
+      "candidateId": "100002543869",
+      "theme": "Meio ambiente",
+      "type": "declarada",
+      "statement": "Meio Ambiente e Sustentabilidade aparece como área explícita do plano de governo da campanha.",
+      "source": "Site oficial da campanha de Orleans Brandão",
+      "date": "2026-10-04",
+      "url": "https://www.orleansbrandao.com.br/plano-de-governo"
+    },
+    {
+      "candidateId": "100002543869",
+      "theme": "Assistência social",
+      "type": "declarada",
+      "statement": "Desenvolvimento Social e Direitos Humanos e Combate à Fome e Erradicação da Pobreza são áreas explícitas no plano de governo da campanha.",
+      "source": "Site oficial da campanha de Orleans Brandão",
+      "date": "2026-10-04",
+      "url": "https://www.orleansbrandao.com.br/plano-de-governo"
+    },
+    {
+      "candidateId": "100002543869",
+      "theme": "Direitos humanos",
+      "type": "declarada",
+      "statement": "Desenvolvimento Social e Direitos Humanos aparece como área explícita do plano de governo da campanha.",
+      "source": "Site oficial da campanha de Orleans Brandão",
+      "date": "2026-10-04",
+      "url": "https://www.orleansbrandao.com.br/plano-de-governo"
+    },
+    {
+      "candidateId": "100002543869",
+      "theme": "Empreendedorismo",
+      "type": "declarada",
+      "statement": "Atração de Investimentos e Inovação aparece como área explícita do plano de governo da campanha.",
+      "source": "Site oficial da campanha de Orleans Brandão",
+      "date": "2026-10-04",
+      "url": "https://www.orleansbrandao.com.br/plano-de-governo"
+    }
+  ]
 }
-
