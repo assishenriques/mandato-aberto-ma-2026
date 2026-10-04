@@ -1,6 +1,6 @@
 # Mandato Aberto — Maranhão 2026
 
-Aplicação pública para consulta às candidaturas do Maranhão nas eleições de 2026.
+Aplicação pública para consulta às candidaturas do Maranhão nas eleições de 2026.(Deputados e Senadores)
 
 ## Publicação
 
