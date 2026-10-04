@@ -54,19 +54,7 @@ def name_match(candidate, member_names):
     aliases.discard("")
     member_names = [str(n) for n in member_names if n]
     exact = [name for name in member_names if normalize(name) in aliases]
-    if len({normalize(x) for x in exact}) == 1 and exact:
-        return exact[0]
-    possible = []
-    for name in member_names:
-        target = tokens(name)
-        if len(target) < 2:
-            continue
-        for alias in aliases:
-            source = tokens(alias)
-            if len(source) >= 2 and (source <= target or target <= source):
-                possible.append(name)
-                break
-    unique = {normalize(x): x for x in possible}
+    unique = {normalize(x): x for x in exact}
     return next(iter(unique.values())) if len(unique) == 1 else None
 
 
@@ -168,13 +156,15 @@ def main():
         official_name = person.get("nome", "")
         if not official_name:
             continue
-        for candidate in candidates:
-            if name_match(candidate, [official_name]):
-                deputy_id = str(person.get("id", ""))
-                if deputy_id:
-                    matches.setdefault(candidate["id"], {}).setdefault("camara", {})[deputy_id] = {
-                        "id": deputy_id, "name": official_name, "term": person.get("_term"), "uf": person.get("siglaUf", "")
-                    }
+        hits = [(candidate, name_match(candidate, [official_name])) for candidate in candidates]
+        hits = [(candidate, matched) for candidate, matched in hits if matched]
+        if len(hits) == 1:
+            candidate, matched = hits[0]
+            deputy_id = str(person.get("id", ""))
+            if deputy_id:
+                matches.setdefault(candidate["id"], {}).setdefault("camara", {})[deputy_id] = {
+                    "id": deputy_id, "name": matched, "term": person.get("_term"), "uf": person.get("siglaUf", "")
+                }
 
     senate_people = []
     for term in TERMS:
@@ -190,11 +180,14 @@ def main():
         code = str(get_ci(person, "CodigoParlamentar"))
         if not name or not code:
             continue
-        for candidate in candidates:
-            if name_match(candidate, [name, get_ci(person, "NomeCompletoParlamentar")]):
-                matches.setdefault(candidate["id"], {}).setdefault("senado", {})[code] = {
-                    "id": code, "name": name, "term": person.get("_term"), "uf": get_ci(person, "UfParlamentar")
-                }
+        member_names = [name, get_ci(person, "NomeCompletoParlamentar")]
+        hits = [(candidate, name_match(candidate, member_names)) for candidate in candidates]
+        hits = [(candidate, matched) for candidate, matched in hits if matched]
+        if len(hits) == 1:
+            candidate, matched = hits[0]
+            matches.setdefault(candidate["id"], {}).setdefault("senado", {})[code] = {
+                "id": code, "name": matched, "term": person.get("_term"), "uf": get_ci(person, "UfParlamentar")
+            }
 
     output = []
     seen = set()
@@ -246,7 +239,7 @@ def main():
             except Exception as exc:
                 warnings.append(f"Senado, parlamentar {senator_id}: {type(exc).__name__}")
 
-    output.sort(key=lambda row: (row["candidateId"], row.get("date", "") or "", row.get("year", "") or ""), reverse=True)
+    output.sort(key=lambda row: (str(row["candidateId"]), str(row.get("date", "") or ""), str(row.get("year", "") or "")), reverse=True)
     records_by_candidate = {}
     for row in output:
         records_by_candidate.setdefault(row["candidateId"], 0)
@@ -266,7 +259,7 @@ def main():
     payload = {
         "generatedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "candidateCount": len(candidates), "matchedCandidateCount": len({row["candidateId"] for row in output}),
-        "recordCount": len(output), "scope": "Câmara dos Deputados e Senado Federal; mandatos 52ª a 57ª legislaturas; nomes vinculados por correspondência única.",
+        "recordCount": len(output), "scope": "Câmara dos Deputados e Senado Federal; mandatos 52ª a 57ª legislaturas; nomes públicos completos normalizados e correspondência única.",
         "coverageNote": "Não localizado nessas duas Casas não significa ausência de produção em assembleias estaduais ou câmaras municipais. A produção da ALEMA ainda não está integrada.",
         "sources": [
             {"name": "Dados Abertos da Câmara dos Deputados", "url": "https://dadosabertos.camara.leg.br/swagger/api.html"},
