@@ -17,11 +17,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Download TSE 2026
         run: |
           set -euo pipefail
-          curl -L --fail --retry 3 -o /tmp/consulta_cand_2026.zip             https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_2026.zip
+          curl -L --fail --retry 3 -o /tmp/consulta_cand_2026.zip https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_2026.zip
           rm -rf /tmp/tse
           mkdir -p /tmp/tse
           unzip -q /tmp/consulta_cand_2026.zip -d /tmp/tse
@@ -32,55 +34,38 @@ jobs:
           import csv, json, os, glob, datetime
 
           files = glob.glob("/tmp/tse/**/*.csv", recursive=True)
-          candidate_files = [p for p in files if "consulta_cand_2026" in os.path.basename(p).lower()]
-
+          wanted = {"SENADOR":"Senador","DEPUTADO FEDERAL":"Deputado Federal","DEPUTADO ESTADUAL":"Deputado Estadual"}
           rows = []
-          wanted = {
-              "SENADOR": "Senador",
-              "DEPUTADO FEDERAL": "Deputado Federal",
-              "DEPUTADO ESTADUAL": "Deputado Estadual",
-          }
 
-          for path in candidate_files:
+          for path in files:
+              if "consulta_cand_2026" not in os.path.basename(path).lower():
+                  continue
               with open(path, "r", encoding="latin-1", newline="") as f:
-                  reader = csv.DictReader(f, delimiter=";")
-                  for raw in reader:
+                  for raw in csv.DictReader(f, delimiter=";"):
                       if (raw.get("SG_UF") or "").strip() != "MA":
                           continue
-                      cargo_raw = (raw.get("DS_CARGO") or "").strip().upper()
-                      if cargo_raw not in wanted:
+                      c=(raw.get("DS_CARGO") or "").strip().upper()
+                      if c not in wanted:
                           continue
                       rows.append({
-                          "id": (raw.get("SQ_CANDIDATO") or "").strip(),
-                          "nome": (raw.get("NM_URNA_CANDIDATO") or raw.get("NM_CANDIDATO") or "").strip(),
-                          "nomeCivil": (raw.get("NM_CANDIDATO") or "").strip(),
-                          "cargo": wanted[cargo_raw],
-                          "partido": (raw.get("SG_PARTIDO") or "").strip(),
-                          "numero": (raw.get("NR_CANDIDATO") or "").strip(),
-                          "uf": "MA",
-                          "situacao": (raw.get("DS_SITUACAO_CANDIDATURA") or "").strip(),
-                          "fonte": "https://dadosabertos.tse.jus.br/pt_BR/dataset/candidatos-2026"
+                          "id":(raw.get("SQ_CANDIDATO") or "").strip(),
+                          "nome":(raw.get("NM_URNA_CANDIDATO") or raw.get("NM_CANDIDATO") or "").strip(),
+                          "nomeCivil":(raw.get("NM_CANDIDATO") or "").strip(),
+                          "cargo":wanted[c],
+                          "partido":(raw.get("SG_PARTIDO") or "").strip(),
+                          "numero":(raw.get("NR_CANDIDATO") or "").strip(),
+                          "uf":"MA",
+                          "situacao":(raw.get("DS_SITUACAO_CANDIDATURA") or "").strip(),
+                          "fonte":"https://dadosabertos.tse.jus.br/pt_BR/dataset/candidatos-2026"
                       })
 
-          dedup = {}
-          for r in rows:
-              dedup[r["id"] or f'{r["cargo"]}-{r["numero"]}-{r["nome"]}'] = r
-          rows = list(dedup.values())
-          rows.sort(key=lambda r: (r["cargo"], r["partido"], r["numero"], r["nome"]))
-
-          os.makedirs("data", exist_ok=True)
-          with open("data/candidatos.json", "w", encoding="utf-8") as f:
-              json.dump(rows, f, ensure_ascii=False, separators=(",", ":"))
-
-          meta = {
-              "updatedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-              "source": "TSE - Candidatos 2026",
-              "uf": "MA",
-              "records": len(rows)
-          }
-          with open("data/meta.json", "w", encoding="utf-8") as f:
-              json.dump(meta, f, ensure_ascii=False, indent=2)
-
+          dedup={r["id"] or f'{r["cargo"]}-{r["numero"]}-{r["nome"]}':r for r in rows}
+          rows=sorted(dedup.values(),key=lambda r:(r["cargo"],r["partido"],r["numero"],r["nome"]))
+          os.makedirs("data",exist_ok=True)
+          with open("data/candidatos.json","w",encoding="utf-8") as f:
+              json.dump(rows,f,ensure_ascii=False,separators=(",",":"))
+          with open("data/meta.json","w",encoding="utf-8") as f:
+              json.dump({"updatedAt":datetime.datetime.now(datetime.timezone.utc).isoformat(),"source":"TSE - Candidatos 2026","uf":"MA","records":len(rows)},f,ensure_ascii=False,indent=2)
           print(f"Registros MA: {len(rows)}")
           PY
 
@@ -94,4 +79,6 @@ jobs:
             exit 0
           fi
           git commit -m "Atualiza dados eleitorais do Maranhão"
-          git push
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
